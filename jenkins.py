@@ -75,7 +75,7 @@ if __name__ == '__main__':
     admin.get_all_usernames()
     print("r5")
     # 调用JenkinsJobOperations里的方法
-    admin.job_api.delete_job("testjob0001")
+    r = admin.job_api.delete_job("testjob0001")
     admin.create_job_with_dsl(job_dsl, "testjob0001")
     admin.create_job_with_dsl(job_dsl, "testjob0001")
     admin.job_api.delete_job("testjob0001")
