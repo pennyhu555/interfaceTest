@@ -1,7 +1,7 @@
 class JenkinsJobAPI():
-    def __init__(self,jenkins):
+    def __init__(self, jenkins):
         self.jenkins = jenkins
-        self.rest_client =jenkins.rest_client
+        self.rest_client = jenkins.rest_client
 
     def list_jobs(self,attribute_to_show="name"):
         return self.rest_client.get(f"/api/json?tree=jobs[{attribute_to_show}]")
