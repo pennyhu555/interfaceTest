@@ -8,5 +8,5 @@ class JenkinsUserAPI():
         return response
 
     def asynch_people(self):
-        response = self.rest_client.get(f"/asynchPeople/api/json")
+        response = self.rest_client.post(f"/asynchPeople/api/json")
         return response

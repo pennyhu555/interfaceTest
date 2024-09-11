@@ -22,7 +22,7 @@ class Jenkins(JenkinsJobOperation, JenkinsUserOperation):
 
     def login(self, username, api_token):
         logger.info(f"login username={username}")
-        self.rest_client.s.auth = HTTPBasicAuth(username, api_token)
+        self.rest_client.s.auth = HTTPBasicAuth(username,api_token)
         r = self.get_crumber_issuer()
         if r.code == 200:
             try:
@@ -61,21 +61,21 @@ if __name__ == '__main__':
                 description:'a parameter')])])node {stage("test"){echo 'Hello World'}}"""
     # 可以直接调用各个模块里封装的api
     # 调用JenkinsJobAPI里封装的方法
-    r = admin.job_api.list_jobs()  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
-    print(f"r1={r}")
-    r = admin.list_jobs()  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
-    print(f"r2={r}")
+    r = admin.job_api.list_jobs ()  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
+    print(r)
+    r = admin.list_jobs ()  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
+    print(r)
     # 调用JenkinsUserAPI里封装的方法
-    r = admin.user_api.get_user("admin")  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
-    print(f"r3={r}")
-    r = admin.get_user("admin")  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
-    print(f"r4={r}")
+    r = admin.user_api.get_user ("admin")  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
+    print(r)
+    r = admin.get_user ("admin")  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
+    print(r)
     # 可以直接调用各种operations里的方法，仍旧自动打日志
     # 调用JenkinsUserOperations里的方法
     admin.get_all_usernames()
-    print("r5")
+
     # 调用JenkinsJobOperations里的方法
-    r = admin.job_api.delete_job("testjob0001")
+    admin.job_api.delete_job("testjob0001")
     admin.create_job_with_dsl(job_dsl, "testjob0001")
     admin.create_job_with_dsl(job_dsl, "testjob0001")
     admin.job_api.delete_job("testjob0001")

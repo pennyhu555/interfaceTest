@@ -27,18 +27,18 @@ class Response:
         res = response
         reqhdrs = format_headers (response.request.headers)
         reshdrs = format_headers (response.headers)
-        logger.debug (f'''
-        ---------------request---------------
-        {req.method} {req.url}
-        {reqhdrs}
+        logger.debug(f'''
+---------------request---------------
+{req.method} {req.url}
+{reqhdrs}
 
-        {req.body if req.body else ""}
-        ---------------response---------------
-        {res.status_code} {res.reason} {res.url}
-        {reshdrs}
+{req.body if req.body else ""}
+---------------response---------------
+{res.status_code} {res.reason} {res.url}
+{reshdrs}
 
-        {res.text if res.text else ""}
-        ---------------end---------------
+{res.text if res.text else ""}
+---------------end---------------
         ''')
 
 
@@ -100,9 +100,9 @@ class RestClient:
             body = response.json()
         except:
             # 如果解析失败则直接把响应中的content内容返回
-            body = str (response.content)
+            body = str(response.content)
         # 新建Response类对象作为返回值
-        return Response (code, body, response)
+        return Response(code, body, response)
 
 
 class Result():

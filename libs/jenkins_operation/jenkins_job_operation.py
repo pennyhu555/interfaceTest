@@ -31,7 +31,7 @@ class JenkinsJobOperation(Operation, JenkinsJobAPI):
     Jenkins.instance.reload()"""
         self.run_groovy(script)
         r = self.get_job (job_name)
-        if r.code == 200 and r.body.get ("displayName") == job_name:
+        if r.code == 200 and r.body.get("displayName") == job_name:
             result.success = True
             result.info = f"Job Created at {r.body.get ('url')}"
             return result
@@ -42,7 +42,7 @@ class JenkinsJobOperation(Operation, JenkinsJobAPI):
 
     # 封装Jenkins的业务方法-删除job
     def delete_all_jobs(self):
-        names = self.get_all_job_names ()
+        names = self.get_all_job_names()
         for name in names:
-            self.delete_job (name)
+            self.delete_job(name)
         return Result(f"{names} all deleted")
