@@ -43,6 +43,8 @@ class JenkinsJobOperation(Operation, JenkinsJobAPI):
     # 封装Jenkins的业务方法-删除job
     def delete_all_jobs(self):
         names = self.get_all_job_names()
+        names.remove("interfaceTest")
         for name in names:
             self.delete_job(name)
-        return Result(f"{names} all deleted")
+        newnames = self.get_all_job_names()
+        return Result(newnames == [], f"{newnames} still not be deleted")

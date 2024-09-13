@@ -20,13 +20,18 @@ class Response:
 
     # 自动打出所有通过rest_client发送的请求的原始请求和原始响应
     def print_raw_request(self, response):
-        format_headers = lambda d: '\n'.join (f'{k}:{v}' for k, v in d.items())
-        # logger.info("{req.method} {req.url} {req.body}".format(req=response.request))
-        # logger.info("{res.status_code} {res.text}".format(res=response))
+        format_headers = lambda d: '\n'.join(f'{k}:{v}' for k, v in d.items())
         req = response.request
+        message = f"{req.method} {req.url}"
+        if req.body:
+            message += str(req.body)
+        message += "----->"
+        message += str(req.body)
+        message += str(response.status_code)
+        logger.info(message)
         res = response
-        reqhdrs = format_headers (response.request.headers)
-        reshdrs = format_headers (response.headers)
+        reqhdrs = format_headers(response.request.headers)
+        reshdrs = format_headers(response.headers)
         logger.debug(f'''
 ---------------request---------------
 {req.method} {req.url}
@@ -51,14 +56,14 @@ class RestClient:
     def options(self, endpoint, **kwargs):
         endpoint = self.base_url + endpoint
         # print(f"OPTIONS {endpoint}")
-        r = self.s.options (endpoint, **kwargs)
-        return self.process (r)
+        r = self.s.options(endpoint, **kwargs)
+        return self.process(r)
 
     def head(self, endpoint, **kwargs):
         endpoint = self.base_url + endpoint
         # print(f"HEAD {endpoint}")
-        r = self.s.head (endpoint, **kwargs)
-        return self.process (r)
+        r = self.s.head(endpoint, **kwargs)
+        return self.process(r)
 
     def get(self, endpoint, **kwargs):
         endpoint = self.base_url + endpoint
@@ -88,8 +93,15 @@ class RestClient:
     def delete(self, endpoint, **kwargs):
         endpoint = self.base_url + endpoint
         # print(f"DELETE {endpoint}")
-        r = self.s.delete (endpoint, **kwargs)
-        return self.process (r)
+        r = self.s.delete(endpoint, **kwargs)
+        return self.process(r)
+
+    def request(self, method_name, endpoint, **kwargs):
+        r = getattr(self.s, method_name)(self.base_url + endpoint, **kwargs)
+        if r.status_code == 403 and "No valid crumb" in r.text:
+            self.authenticate()
+            r = getattr(self.s, method_name)(self.base_url + endpoint, **kwargs)
+        return self.process(r)
 
     def process(self, response):
         # 获取http响应中的状态码
@@ -106,8 +118,8 @@ class RestClient:
 
 
 class Result():
-    def __init__(self, info=""):
-        self.success = True
+    def __init__(self, success=True, info=""):
+        self.success = success
         self.info = info
 
     def __repr__(self):

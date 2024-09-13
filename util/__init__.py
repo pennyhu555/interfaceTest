@@ -22,7 +22,7 @@ class MyLog:
         try:
             scenario_name = threading.current_thread().scenario_name
         except:
-            scenario_name = "UnNamed Scenario"
+            scenario_name = ""
         if self.log_level >= self.INFO:
             print(f"[{scenario_name}][{timestamp}]{msg}")
         with open(f"logs//logs_{scenario_name}.txt","a") as f:

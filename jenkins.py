@@ -12,25 +12,43 @@ class Jenkins(JenkinsJobOperation, JenkinsUserOperation):
         # 使用restClient替代requests的session
         self.base_url = base_url
         self.rest_client = RestClient(base_url)
+        self.rest_client.authenticate = self.authenticate
         self.job_api = JenkinsJobAPI(self)
         self.user_api = JenkinsUserAPI(self)
         self.crumb_field_name = None
         self.crumb_field_value = None
         # 在初始化时增加登入的机制
         if username and api_token:
+            self.username = username
+            self.api_token = api_token
             self.login(username, api_token)
+
+    def authenticate(self):
+        if self.username and self.api_token:
+            self.login(self.username, self.api_token)
+        else:
+            r = self.get_crumber_issuer()
+            self.crumb_field_name = r.body['crumbRequestField']
+            self.crumb_field_value = r.body['crumb']
+            self.rest_client.s.headers[self.crumb_field_name] = self.crumb_field_value
 
     def login(self, username, api_token):
         logger.info(f"login username={username}")
-        self.rest_client.s.auth = HTTPBasicAuth(username,api_token)
+        self.rest_client.s.auth = HTTPBasicAuth(username, api_token)
+        # 在session中设置crumb的字段名和值
+        # self.rest_client.s.headers[self.crumb_field_name] = self.crumb_field_value
         r = self.get_crumber_issuer()
         if r.code == 200:
             try:
                 self.crumb_field_name = r.body['crumbRequestField']
                 self.crumb_field_value = r.body['crumb']
-                # 在session中设置crumb的字段名和值
-                self.rest_client.s.headers[self.crumb_field_name] = self.crumb_field_value
-                return self
+                if self.crumb_field_name and self.crumb_field_value:
+                    # 在session中设置crumb的字段名和值
+                    self.rest_client.s.headers[self.crumb_field_name] = self.crumb_field_value
+                    return self
+                else:
+                    print(f"Crumb field or value is missing or None in the response: {r.body}")
+
             except KeyError as er:
                 print(f"KeyError encountered:{er}")
                 print(f"full response body:{r.body}")
@@ -42,6 +60,8 @@ class Jenkins(JenkinsJobOperation, JenkinsUserOperation):
         self.rest_client.auth = None
         self.crumb_field_name = None
         self.crumb_field_value = None
+        self.username = None
+        self.api_token = None
 
     def get_crumber_issuer(self):
         response = self.rest_client.get("/crumbIssuer/api/json")
@@ -61,14 +81,14 @@ if __name__ == '__main__':
                 description:'a parameter')])])node {stage("test"){echo 'Hello World'}}"""
     # 可以直接调用各个模块里封装的api
     # 调用JenkinsJobAPI里封装的方法
-    r = admin.job_api.list_jobs ()  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
+    r = admin.job_api.list_jobs()  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
     print(r)
-    r = admin.list_jobs ()  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
+    r = admin.list_jobs()  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
     print(r)
     # 调用JenkinsUserAPI里封装的方法
-    r = admin.user_api.get_user ("admin")  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
+    r = admin.user_api.get_user("admin")  # TODO 通过根节点成员变量来调用“叶子节点的方法”。
     print(r)
-    r = admin.get_user ("admin")  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
+    r = admin.get_user("admin")  # TODO 通过根节点继承的“叶子节点的方法”直接调用。与上面的方式等价。
     print(r)
     # 可以直接调用各种operations里的方法，仍旧自动打日志
     # 调用JenkinsUserOperations里的方法
